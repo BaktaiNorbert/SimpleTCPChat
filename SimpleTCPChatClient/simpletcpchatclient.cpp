@@ -64,7 +64,8 @@ void SimpleTCPChatClient::ReadLoop(){
 }
 
 void SimpleTCPChatClient::SendMessage(const QString& text){
-    QByteArray data = text.toUtf8();
+    QString out = "client 1\tclient 1\t" + text;
+    QByteArray data = out.toUtf8();
     write(sockfd, data.constData(), data.size());
 }
 

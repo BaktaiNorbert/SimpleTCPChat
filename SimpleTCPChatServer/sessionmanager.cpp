@@ -15,7 +15,7 @@ SessionManager::SessionManager() {
     int connfd;
     u_int len;
     struct sockaddr_in server_address, cli;
-
+    printf("juh");
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -47,17 +47,7 @@ SessionManager::SessionManager() {
     }
     else
         printf("Server listening..\n");
-    len = sizeof(cli);
-
-    // Accept the data packet from client and verification
-    connfd = accept(sockfd, (SA*)&cli, &len);
-    if (connfd < 0) {
-        printf("server accept failed...\n");
-        exit(0);
-    }
-    else
-        printf("server accept the client...\n");
-
+    printf("buh");
     newConnectionSearchingLoop();
 }
 
@@ -76,8 +66,8 @@ void SessionManager::newConnectionSearchingLoop(){
 
         auto client = std::make_unique<Client>(connfd, buff);
         client->thread = std::thread(&SessionManager::readingLoop, this, client.get());
-        clients.push_back(std::move(client));
         printf("client %s added", client->name.c_str());
+        clients.push_back(std::move(client));
     }
 }
 //SENDER_NAME\tRECIEVER_NAME\tCONTENT
