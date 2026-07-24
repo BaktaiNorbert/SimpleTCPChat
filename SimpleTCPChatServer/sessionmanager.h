@@ -8,7 +8,12 @@ class SessionManager
 {
 public:
     SessionManager();
-    std::vector<Client> clients;
+    void newConnectionSearchingLoop();
+    std::vector<std::unique_ptr<Client>> clients;
+private:
+    int sockfd;
+    void readingLoop(Client* client);
+    void sendMessageTo(Client* sender, char* reciever_name, char* message);
 };
 
 #endif // SESSIONMANAGER_H

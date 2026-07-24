@@ -37,7 +37,8 @@ SimpleTCPChatClient::SimpleTCPChatClient(int port) {
     }
     else
         printf("connected to the server..\n");
-
+    //introduce
+    write(sockfd, "client 1", 8);
     last_output = "";
 }
 
