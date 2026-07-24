@@ -2,35 +2,52 @@
 #include "./ui_mainwindow.h"
 #include "QThread"
 
-MainWindow::MainWindow(QWidget *parent)
+SimpleTCPChat::SimpleTCPChat(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::SimpleTCPChat)
 {
     ui->setupUi(this);
+    client = nullptr;
+}
+
+void SimpleTCPChat::Connect(){
     thread = new QThread(this);
-    client = new SimpleTCPChatClient(8080);
+    QString ip = ui->IP->toPlainText();
+    QStringList ipport = ip.split(":");
+
+    QByteArray ba = ui->username->toPlainText().toUtf8();
+    char* cstr = ba.data();
+
+    QByteArray ba2 = ui->targetUser->toPlainText().toUtf8();
+    char* cstr2 = ba2.data();
+
+    client = new SimpleTCPChatClient(ipport[0].toUtf8().data(),
+                                     ipport[1].toInt(),
+                                     cstr,
+                                     cstr2);
     client->moveToThread(thread);
     connect(thread, &QThread::started, client, &SimpleTCPChatClient::ReadLoop);
-    connect(client, &SimpleTCPChatClient::OutputChanged, this, &MainWindow::AddText);
+    connect(client, &SimpleTCPChatClient::OutputChanged, this, &SimpleTCPChat::AddText);
     thread->start();
 
     connect(thread, &QThread::finished, client, &QObject::deleteLater);
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
 }
 
-MainWindow::~MainWindow()
+SimpleTCPChat::~SimpleTCPChat()
 {
-    client->Stop();
-    thread->quit();
-    thread->wait();
+    if(client != nullptr){
+        client->Stop();
+        thread->quit();
+        thread->wait();
+    }
     delete ui;
 }
 
-void MainWindow::AddText(const QString& text){
+void SimpleTCPChat::AddText(const QString& text){
     if(text == ""){
         return;
     }
-    qDebug() << text;
     QPlainTextEdit* response = new QPlainTextEdit(ui->chatLogParent);
     response->setPlainText(text.toUtf8());
     response->setReadOnly(true);
@@ -46,11 +63,20 @@ void MainWindow::AddText(const QString& text){
     ui->chatLogParent->layout()->addWidget(response);
 }
 
-void MainWindow::on_sendButton_pressed()
+void SimpleTCPChat::on_sendButton_pressed()
 {
+    if(client == nullptr){
+        return;
+    }
     QString text = ui->inputField->toPlainText();
     client->SendMessage(text);
     ui->inputField->clear();
     AddText(text);
+}
+
+
+void SimpleTCPChat::on_pushButton_pressed()
+{
+    Connect();
 }
 

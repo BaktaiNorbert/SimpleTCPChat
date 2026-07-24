@@ -14,7 +14,7 @@ class SIMPLETCPCHATCLIENT_EXPORT SimpleTCPChatClient : public QObject
 
 public:
 
-    explicit SimpleTCPChatClient(int port);
+    explicit SimpleTCPChatClient(char* ip, int port, char* username, char* target_user);
     void SendMessage(const QString& text);
     void Stop();
 
@@ -24,6 +24,7 @@ public slots:
 private:
     int sockfd;
     QString last_output;
+    char* target_user;
     std::atomic<bool> running{false};
 
 signals:

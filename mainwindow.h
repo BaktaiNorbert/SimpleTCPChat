@@ -6,24 +6,27 @@
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
-class MainWindow;
+class SimpleTCPChat;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
+class SimpleTCPChat : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() override;
+    explicit SimpleTCPChat(QWidget *parent = nullptr);
+    ~SimpleTCPChat() override;
 
 private slots:
     void on_sendButton_pressed();
     void AddText(const QString &text);
+    void on_pushButton_pressed();
+
 private:
-    Ui::MainWindow *ui;
+    Ui::SimpleTCPChat *ui;
     SimpleTCPChatClient *client;
     QThread *thread;
+    void Connect();
 };
 #endif // MAINWINDOW_H

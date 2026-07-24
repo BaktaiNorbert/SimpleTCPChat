@@ -15,7 +15,6 @@ SessionManager::SessionManager() {
     int connfd;
     u_int len;
     struct sockaddr_in server_address, cli;
-    printf("juh");
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
@@ -47,7 +46,6 @@ SessionManager::SessionManager() {
     }
     else
         printf("Server listening..\n");
-    printf("buh");
     newConnectionSearchingLoop();
 }
 
@@ -66,30 +64,32 @@ void SessionManager::newConnectionSearchingLoop(){
 
         auto client = std::make_unique<Client>(connfd, buff);
         client->thread = std::thread(&SessionManager::readingLoop, this, client.get());
-        printf("client %s added", client->name.c_str());
+        printf("client %s added\n", client->name.c_str());
         clients.push_back(std::move(client));
     }
 }
-//SENDER_NAME\tRECIEVER_NAME\tCONTENT
+//RECIEVER_NAME\tCONTENT
 void SessionManager::readingLoop(Client* client){
     char buff[MAX];
-    int n;
     // infinite loop for chat
     for (;;) {
         memset(buff, 0, MAX);
         // read the message from client and copy it in buffer
-        read(client->fd, buff, sizeof(buff));
+        int n = read(client->fd, buff, sizeof(buff) - 1);
+        if (n <= 0)
+            break;
 
-        char* parts[3];
+        buff[n] = '\0';
+        char* parts[2];
         int i = 0;
         char* token = strtok(buff, "\t");
-        while (token != nullptr && i < 3)
+        while (token != nullptr && i < 2)
         {
             parts[i++] = token;
             token = strtok(nullptr, "\t");
         }
-
-        sendMessageTo(client, parts[1], parts[2]);
+        printf("%s  t:%s\n", parts[0], parts[1]);
+        sendMessageTo(client, parts[0], parts[1]);
     }
 }
 

@@ -9,8 +9,9 @@
 #include <strings.h> // bzero() nyeh, memset()
 #include <sys/socket.h>
 #include <unistd.h> // read(), write(), close()
+#include "QDebug"
 
-SimpleTCPChatClient::SimpleTCPChatClient(int port) {
+SimpleTCPChatClient::SimpleTCPChatClient(char* ip, int port, char* username, char* _target_user) {
     int connfd;
     struct sockaddr_in servaddr;
 
@@ -26,7 +27,7 @@ SimpleTCPChatClient::SimpleTCPChatClient(int port) {
 
     // assign IP, PORT
     servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    servaddr.sin_addr.s_addr = inet_addr(ip);
     servaddr.sin_port = htons(port);
 
     // connect the client socket to server socket
@@ -38,7 +39,8 @@ SimpleTCPChatClient::SimpleTCPChatClient(int port) {
     else
         printf("connected to the server..\n");
     //introduce
-    write(sockfd, "client 1", 8);
+    write(sockfd, username, 8);
+    this->target_user = strdup(_target_user);
     last_output = "";
 }
 
@@ -64,8 +66,10 @@ void SimpleTCPChatClient::ReadLoop(){
 }
 
 void SimpleTCPChatClient::SendMessage(const QString& text){
-    QString out = "client 1\tclient 1\t" + text;
+    QString target_name = this->target_user;
+    QString out = target_name + "\t" + text;
     QByteArray data = out.toUtf8();
+    qDebug() << out;
     write(sockfd, data.constData(), data.size());
 }
 
